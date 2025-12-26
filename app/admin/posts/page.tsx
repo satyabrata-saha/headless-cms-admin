@@ -1,8 +1,26 @@
+"use client";
+import Button from "@/components/Button";
+
 async function getPosts() {
-  const res = await fetch("http://localhost:4000/v1/posts", {
+  const res = await fetch("http://localhost:4000/v1/admin/posts/all", {
     cache: "no-store",
+    headers: {
+      Authorization: `Bearer ${process.env.NEXT_PUBLIC_ADMIN_API_KEY}`,
+    },
   });
   return res.json();
+}
+
+async function publishPost(id: any) {
+  const res = await fetch(
+    `http://localhost:4000/v1/admin/posts/${id}/publish`,
+    {
+      cache: "no-store",
+      headers: {
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_ADMIN_API_KEY}`,
+      },
+    }
+  );
 }
 
 export default async function PostsPage() {
@@ -26,6 +44,7 @@ export default async function PostsPage() {
             <tr>
               <th className="px-4 py-3 text-left">Title</th>
               <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Publish</th>
               <th className="px-4 py-3 text-right">Action</th>
             </tr>
           </thead>
@@ -35,8 +54,15 @@ export default async function PostsPage() {
                 <td className="px-4 py-3">{post.title}</td>
                 <td className="px-4 py-3 text-center">
                   <span className="rounded bg-gray-800 px-2 py-1 text-xs">
-                    Published
+                    {post.published === 1 ? "Published" : "Draft"}
                   </span>
+                </td>
+                <td className="px-4 py-3 text-center">
+                  {post.published === 0 ? (
+                    <Button post={post} publishPost={publishPost} />
+                  ) : (
+                    <span>t</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-right">
                   <a

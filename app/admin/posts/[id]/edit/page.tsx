@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import Button from "@/components/Button";
 
 export default function EditPostPage() {
   const { id } = useParams();
@@ -10,6 +11,7 @@ export default function EditPostPage() {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [post, setPost] = useState({});
 
   useEffect(() => {
     fetch(`http://localhost:4000/v1/admin/posts/${id}`, {
@@ -21,6 +23,7 @@ export default function EditPostPage() {
       .then((post) => {
         setTitle(post.title);
         setContent(post.content);
+        setPost({ post });
       });
   }, [id]);
 
@@ -37,6 +40,18 @@ export default function EditPostPage() {
     });
 
     router.push("/admin/posts");
+  }
+
+  async function publishPost(id: any) {
+    const res = await fetch(
+      `http://localhost:4000/v1/admin/posts/${id}/publish`,
+      {
+        cache: "no-store",
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_ADMIN_API_KEY}`,
+        },
+      }
+    );
   }
 
   return (
@@ -60,6 +75,15 @@ export default function EditPostPage() {
           <button className="rounded bg-white px-6 py-2 text-black hover:bg-gray-200">
             Update
           </button>
+          {post.published === 0 ? (
+            <Button
+              post={post}
+              publishPost={publishPost}
+              classNameTo="border border-gray-500 text-gray-500"
+            />
+          ) : (
+            <span className="text-gray-400 text-sm ml-2">Published</span>
+          )}
         </form>
 
         {/* Live Preview */}
